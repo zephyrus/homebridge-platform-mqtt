@@ -1,0 +1,32 @@
+{
+	"name": "homebridge-platform-mqtt",
+	"version": "0.0.1",
+
+	"main": "platform.js",
+
+	"engines": {
+		"homebridge": ">=1.1.0"
+	},
+
+	"keywords": [
+		"mqtt",
+		"homebridge-plugin"
+	],
+
+	"scripts": {
+		"lint": "eslint .",
+		"test": "jest"
+	},
+
+	"dependencies": {
+		"mqtt": "4.1.0",
+		"lodash": "4.17.15"
+	},
+
+	"devDependencies": {
+		"jest": "26.0.1",
+		"eslint": "6.8.0",
+		"eslint-plugin-import": "2.20.2",
+		"eslint-config-airbnb-base": "14.1.0"
+	}
+}
