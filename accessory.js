@@ -1,6 +1,7 @@
 const { EventEmitter } = require('events');
 const { State } = require('./state');
 const { Service } = require('./service');
+const { isEqual } = require('lodash');
 
 const dynamic = (state, value, def) => {
 	if (!value) return def;
@@ -55,10 +56,18 @@ class Accessory extends EventEmitter {
 			}
 
 			if (typeof t.sync === 'function') {
-				this.mqtt.on('change', (state) => {
+				this.mqtt.on('change', (...args) => {
 					if (!this.platform.ready) return;
 
-					platform.publish(t.topic, t.sync(state), t);
+					if ('function' === typeof t.skip){
+						if (t.skip(...args, isEqual)) return;
+					}
+
+					const state = t.sync(...args, isEqual);
+
+					if (undefined === state) return;
+
+					platform.publish(t.topic, state, t);
 				});
 			}
 		});
