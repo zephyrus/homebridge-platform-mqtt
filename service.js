@@ -29,7 +29,7 @@ class Service extends EventEmitter {
 
 		const HAPService = this.type;
 
-		this.service = new HAPService(this.name);
+		this.service = new HAPService(this.name, this.config.subtype);
 
 		if (config.hidden) {
 			this.service.setHiddenService();
