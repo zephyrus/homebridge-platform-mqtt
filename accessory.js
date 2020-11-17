@@ -22,6 +22,8 @@ class Accessory extends EventEmitter {
 		this.config = config;
 		this.platform = platform;
 
+		this.online = !this.config.online;
+
 		this.services = config.services
 			.map((service) => this.service(service));
 
@@ -38,6 +40,10 @@ class Accessory extends EventEmitter {
 		this.platform.on('synced', () => {
 			this.mqtt.link(this.homekit, (...args) => this.encode(...args));
 			this.homekit.link(this.mqtt, (...args) => this.decode(...args));
+		});
+
+		if (this.config.online) this.mqtt.on('change', (data, prev) => {
+			this.online = data[this.config.online];
 		});
 
 		if (!config.topics) return;
@@ -92,7 +98,11 @@ class Accessory extends EventEmitter {
 	// encode data to homekit
 	encode(...args) {
 		if (typeof this.config.encode === 'function') {
-			return this.config.encode(...args);
+			try {
+				return this.config.encode(...args);
+			} catch(e) {
+				this.error(e);
+			}
 		}
 
 		return args[1];
@@ -101,7 +111,11 @@ class Accessory extends EventEmitter {
 	// decode data from homekit
 	decode(...args) {
 		if (typeof this.config.decode === 'function') {
-			return this.config.decode(...args);
+			try {
+				return this.config.decode(...args);
+			} catch(e) {
+				this.error(e);
+			}
 		}
 
 		return args[1];
@@ -114,6 +128,10 @@ class Accessory extends EventEmitter {
 				...state,
 				...service.state(),
 			}), {});
+	}
+
+	error(e) {
+		this.platform.log.error(e);
 	}
 
 	change() {
