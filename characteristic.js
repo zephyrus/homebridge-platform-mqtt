@@ -50,7 +50,7 @@ class Characteristic extends EventEmitter {
 		}
 
 		this.characteristic.on('get', (callback) => {
-			if (!this.service.accessory.online) {
+			if (this.service.accessory.online === false) {
 				return callback('offline');
 			}
 

@@ -22,8 +22,6 @@ class Accessory extends EventEmitter {
 		this.config = config;
 		this.platform = platform;
 
-		this.online = !this.config.online;
-
 		this.services = config.services
 			.map((service) => this.service(service));
 
@@ -43,7 +41,9 @@ class Accessory extends EventEmitter {
 		});
 
 		if (this.config.online) this.mqtt.on('change', (data, prev) => {
-			this.online = data[this.config.online];
+			this.online = 'function' === typeof this.config.online
+				? this.config.online(data, prev)
+				: data[this.config.online];
 		});
 
 		if (!config.topics) return;
