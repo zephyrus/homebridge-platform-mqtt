@@ -51,12 +51,31 @@ class Characteristic extends EventEmitter {
 
 		this.characteristic.on('get', (callback) => {
 			if (this.service.accessory.online === false) {
-				return callback('offline');
+				this.platform.log.warn(
+					`accessory is offline [${this.service.accessory.name}, ${this.name}]`,
+				);
+
+				callback('offline');
+
+				return;
 			}
 
 			// value was not set yet
 			if (this.value === undefined) {
 				this.init = callback;
+
+				setTimeout(() => {
+					if (!this.init) return;
+
+					this.init('offline');
+					delete this.init;
+
+					this.platform.log.warn(
+						`accessory timeout [${this.service.accessory.name}, ${this.name}]`,
+					);
+
+				}, 1000);
+
 				return;
 			}
 

@@ -1,7 +1,7 @@
 const { EventEmitter } = require('events');
+const { isEqual } = require('lodash');
 const { State } = require('./state');
 const { Service } = require('./service');
-const { isEqual } = require('lodash');
 
 const dynamic = (state, value, def) => {
 	if (!value) return def;
@@ -40,11 +40,13 @@ class Accessory extends EventEmitter {
 			this.homekit.link(this.mqtt, (...args) => this.decode(...args));
 		});
 
-		if (this.config.online) this.mqtt.on('change', (data, prev) => {
-			this.online = 'function' === typeof this.config.online
-				? this.config.online(data, prev)
-				: data[this.config.online];
-		});
+		if (this.config.online) {
+			this.mqtt.on('change', (data, prev) => {
+				this.online = typeof this.config.online === 'function'
+					? this.config.online(data, prev)
+					: data[this.config.online];
+			});
+		}
 
 		if (!config.topics) return;
 
@@ -65,7 +67,7 @@ class Accessory extends EventEmitter {
 				this.mqtt.on('change', (...args) => {
 					if (!this.platform.ready) return;
 
-					if ('function' === typeof t.skip){
+					if (typeof t.skip === 'function') {
 						if (t.skip(...args, isEqual)) return;
 					}
 
@@ -100,7 +102,7 @@ class Accessory extends EventEmitter {
 		if (typeof this.config.encode === 'function') {
 			try {
 				return this.config.encode(...args);
-			} catch(e) {
+			} catch (e) {
 				this.error(e);
 			}
 		}
@@ -113,7 +115,7 @@ class Accessory extends EventEmitter {
 		if (typeof this.config.decode === 'function') {
 			try {
 				return this.config.decode(...args);
-			} catch(e) {
+			} catch (e) {
 				this.error(e);
 			}
 		}
