@@ -16,6 +16,8 @@ class Platform extends EventEmitter {
 		this.ready = false;
 		this.subscriptions = [];
 
+		this.setMaxListeners(256);
+
 		// homekit
 		this.serviceTypes = Object.keys(this.api.hap.Service)
 			.reduce((types, name) => {

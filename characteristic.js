@@ -71,7 +71,7 @@ class Characteristic extends EventEmitter {
 					delete this.init;
 
 					this.platform.log.warn(
-						`accessory timeout [${this.service.accessory.name}, ${this.name}]`,
+						`accessory timeout [${this.service.accessory.name}, ${this.name}], value (${this.value})`,
 					);
 
 				}, 1000);
