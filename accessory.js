@@ -1,6 +1,5 @@
 const { EventEmitter } = require('events');
-const { isEqual } = require('lodash');
-const { State } = require('./state');
+const { syncState, mqttState } = require('./state');
 const { Service } = require('./service');
 
 const dynamic = (state, value, def) => {
@@ -25,8 +24,8 @@ class Accessory extends EventEmitter {
 		this.services = config.services
 			.map((service) => this.service(service));
 
-		this.mqtt = new State();
-		this.homekit = new State(this.state());
+		this.mqtt = new mqttState(platform, config);
+		this.homekit = new syncState(this.state());
 
 		this.homekit.on('change', (state) => {
 			this.services
@@ -47,38 +46,6 @@ class Accessory extends EventEmitter {
 					: data[this.config.online];
 			});
 		}
-
-		if (!config.topics) return;
-
-		config.topics.forEach((t) => {
-			if (!t.topic) return;
-
-			if (typeof t.parse === 'function') {
-				platform.subscribe(t.topic, (topic, data) => {
-					if (this.platform.config.log) {
-						this.platform.log.info(`received [${topic}] ${JSON.stringify(data)}`);
-					}
-
-					this.mqtt.merge(t.parse(data, this.mqtt.get()));
-				});
-			}
-
-			if (typeof t.sync === 'function') {
-				this.mqtt.on('change', (...args) => {
-					if (!this.platform.ready) return;
-
-					if (typeof t.skip === 'function') {
-						if (t.skip(...args, isEqual)) return;
-					}
-
-					const state = t.sync(...args, isEqual);
-
-					if (undefined === state) return;
-
-					platform.publish(t.topic, state, t);
-				});
-			}
-		});
 	}
 
 	info(info = {}) {

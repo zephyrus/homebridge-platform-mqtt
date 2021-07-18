@@ -118,10 +118,6 @@ class Platform extends EventEmitter {
 			message = JSON.stringify(message);
 		}
 
-		if (this.config.log) {
-			this.log.info(`publish [${topic}] ${message}`);
-		}
-
 		this.mqtt.publish(topic, message, {
 			qos,
 			retain,

@@ -12,6 +12,10 @@
 		"import/no-dynamic-require": 0,
 		"global-require": 0,
 		"no-empty": 0,
-		"indent": ["error", "tab"]
+		"indent": ["error", "tab"],
+		"new-cap": 0,
+		"no-unused-expressions": 0,
+		"yoda": 0,
+		"consistent-return": 0
 	}
 }
